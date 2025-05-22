@@ -1,12 +1,11 @@
 const express = require('express')
 const bodyParser = require('express');
 
-const v1RouteUpp =  require("./v1/routes/upp.js");
-
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/v1/upp', v1RouteUpp);
+const v1Routes = require('./v1/routes');
+app.use('/v1', v1Routes); // 自動對應 /v1/upp、/v1/payment
 
 
 // 首頁，測試服務是否成功佈署
