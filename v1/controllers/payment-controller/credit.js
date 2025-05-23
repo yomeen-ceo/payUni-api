@@ -6,6 +6,7 @@ const axios = require('axios');
 /**
  * @api {post /upp 接收訂單，產生加密內容產生前端formData，送回前端自動發給upp，前端會自動跳轉到payuni的支付頁面
  * @apiName upp
+ * @apiGroup trade
  * @apiParam {String}   merID           商店ID
  * @apiParam {String}   merKey          商店KEY
  * @apiParam {String}   merIv           商店IV
@@ -59,10 +60,6 @@ module.exports = async (req, res) => {
         // console.log('✅ 解密後內容:', decrypted);
         // 先解析 URL query string
         const parsed = qs.parse(decrypted);
-        // 對 Message 欄位做 URL decode（Node 預設未解碼）
-        if (parsed.Message) {
-            parsed.Message = decodeURIComponent(parsed.Message);
-        }
         console.log(parsed)
         res.send(parsed);
     } catch (err) {

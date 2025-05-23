@@ -3,6 +3,7 @@ const bodyParser = require('express');
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
 
 const v1Routes = require('./v1/routes');
 app.use('/v1', v1Routes); // 自動對應 /v1/upp、/v1/payment
