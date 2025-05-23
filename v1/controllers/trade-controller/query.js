@@ -96,7 +96,7 @@ module.exports = async (req, res) => {
         // console.log('parsed', parsed);
         const result = {};
         for (const [key, value] of Object.entries(parsed)) {
-            const match = key.match(/^Result\[0\]\[(.+)\]$/);
+            const match = key.match(/^Result\[0]\[(.+)]$/);
             if (match) {
                 result[match[1]] = value;
             }

@@ -1,7 +1,6 @@
 const { encrypt, decrypt, sha256 } = require('../../../utils/payuni-crypto.js');
 const qs = require("querystring");
 const axios = require('axios');
-const {json} = require("express");
 
 /**
  * @api {post} /api/trade/query 交易查詢（Credit API）
