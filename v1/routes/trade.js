@@ -4,4 +4,5 @@ const router = express.Router()
 const tradeController = require("../controllers/trade-controller");
 router.post('/query', tradeController.query)
 router.post('/finite-query', tradeController.finiteQuery)
+router.post('/close', tradeController.close)
 module.exports = router;
