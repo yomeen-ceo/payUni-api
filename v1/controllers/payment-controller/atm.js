@@ -52,7 +52,7 @@ module.exports = async (req, res) => {
     });
 
     try {
-        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/credit', requestData, {
+        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/atm', requestData, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
 
