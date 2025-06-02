@@ -14,14 +14,16 @@ Google Cloud Run
 ### 交易建立
 #### /payment
 
-| 名稱      | api           | 進度 |
-|---------|---------------|----|
-| 整合支付頁   | upp           | 完成 |
-| 信用卡幕後   | credit        | 完成 |
-| ATM     | atm           |    |
-| 超商幕後    | CVS           |    |
-| LINE幕後  | line          |    |
-| AFTEE幕後 | aftee         |    |
+todo: 判斷載具類型util（共用）
+
+| 名稱      | api    | 進度           |
+|---------|--------|--------------|
+| 整合支付頁   | upp    | 完成           |
+| 信用卡幕後   | credit | 補上使用者信箱與載具參數 |
+| ATM     | atm    |              |
+| 超商幕後    | CVS    |              |
+| LINE幕後  | line   |              |
+| AFTEE幕後 | aftee  |              |
 
 ### 交易查詢
 #### /trade
