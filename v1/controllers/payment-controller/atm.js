@@ -23,22 +23,25 @@ const axios = require('axios');
 module.exports = async (req, res) => {
     const { merID, merKey, merIv, prodDesc, tradeAmt, bankType, userMail, carrierType, carrierInfo, invBuyerName } = req.body;
 
-    const merTradeNo = `ORDER${Date.now()}`;
-    const merData = {
-        MerID: merID,
-        Timestamp: Math.floor(Date.now() / 1000),
-        MerTradeNo: merTradeNo,
-        ProdDesc: prodDesc,
-        TradeAmt: tradeAmt,
-        BankType: bankType || '',
-        UserMail: userMail || '',
-        CarrierType:  carrierType || '',
-        CarrierInfo: carrierInfo || '',
-        InvBuyerName: invBuyerName || '',
-        NotifyURL: 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/notify',
-        ReturnURL: 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/return',
-        API3D: 1
-    }
+    const merData = {}
+
+    merData.MerTradeNo = `ORDER${Date.now()}`;
+    merData.MerID= merID
+    merData.MerKey= merKey
+    merData.merIv= merIv
+    merData.Timestamp = Math.floor(Date.now() / 1000)
+    merData.ProdDesc = prodDesc
+    merData.TradeAmt = tradeAmt
+    merData.UserMail = userMail || ''
+    merData.CarrierType = carrierType || ''
+    merData.CarrierInfo = carrierInfo || ''
+    merData.InvBuyerName = invBuyerName || ''
+    merData.NotifyURL = 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/notify'
+    merData.ReturnURL = 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/return'
+    merData.BankType = bankType
+
+
+    console.log('merData:', merData)
 
     const plaintext = qs.stringify(merData);
     const encryptInfo = encrypt(plaintext, merKey, merIv)
