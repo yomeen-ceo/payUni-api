@@ -11,12 +11,11 @@ const axios = require('axios');
  * @apiParam {String}   merIv           商店IV
  * @apiParam {String}   prodDesc        商品名稱
  * @apiParam {String}   tradeAmt        訂單金額
- * @apiParam {Number}   UserMail        消費者信箱
- * @apiParam {Number}   ExpireDate      繳費截止日期
- * @apiParam {Number}   BuyerHash       買方會員Token Hash
- * @apiParam {Number}   CarrierType     發票載具類別
- * @apiParam {Number}   CarrierInfo     載具內容
- * @apiParam {Number}   InvBuyerName    買方名稱或公司抬頭
+ * @apiParam {String}   userMail        消費者信箱
+ * @apiParam {Number}   buyerHash       買方會員Token Hash
+ * @apiParam {Number}   carrierType     發票載具類別
+ * @apiParam {Number}   carrierInfo     載具內容
+ * @apiParam {Number}   invBuyerName    買方名稱或公司抬頭
  *
  */
 module.exports = async (req, res) => {
@@ -53,7 +52,7 @@ module.exports = async (req, res) => {
 
     try {
         const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/cvs', requestData, {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'payuni' }
         });
 
         // console.log('✅ Credit Transaction Response:', responseData.data);

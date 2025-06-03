@@ -106,7 +106,7 @@ module.exports = async (req, res) => {
 
     try {
         const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/credit', requestData, {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'payuni' }
         });
 
         console.log('✅ Credit Transaction Response:', responseData.data);

@@ -3,25 +3,24 @@ const qs = require("querystring");
 const axios = require('axios');
 
 /**
- * @api {post /atm
- * @apiName atm
+ * @api {post /linepay
+ * @apiName linepay         LINE Pay幕後
  * @apiGroup payment
  * @apiParam {String}   merID           商店ID
  * @apiParam {String}   merKey          商店KEY
  * @apiParam {String}   merIv           商店IV
  * @apiParam {String}   prodDesc        商品名稱
  * @apiParam {String}   tradeAmt        訂單金額
- * @apiParam {Number}   BankType        銀行(代碼)
- * @apiParam {Number}   UserMail        消費者信箱
- * @apiParam {Number}   ExpireDate      繳費截止日期
- * @apiParam {Number}   BuyerHash       買方會員Token Hash
- * @apiParam {Number}   CarrierType     發票載具類別
- * @apiParam {Number}   CarrierInfo     載具內容
- * @apiParam {Number}   InvBuyerName    買方名稱或公司抬頭
+ * @apiParam {String}   userMail        消費者信箱
+ * @apiParam {Number}   buyerHash       買方會員Token Hash
+ * @apiParam {Number}   carrierType     發票載具類別
+ * @apiParam {Number}   carrierInfo     載具內容
+ * @apiParam {Number}   invBuyerName    買方名稱或公司抬頭
+ * @apiParam {Number}   deepLinkURL     可打開特定的應用內容，包含APP、網站等。(格式: 完整網址，此欄位有值時不會觸發ReturnURL)
  *
  */
 module.exports = async (req, res) => {
-    const { merID, merKey, merIv, prodDesc, tradeAmt, bankType, userMail, carrierType, carrierInfo, invBuyerName } = req.body;
+    const { merID, merKey, merIv, prodDesc, tradeAmt, userMail, carrierType, carrierInfo, invBuyerName, deepLinkURL } = req.body;
 
     const merData = {}
 
@@ -38,8 +37,10 @@ module.exports = async (req, res) => {
     merData.InvBuyerName = invBuyerName || ''
     merData.NotifyURL = 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/notify'
     merData.ReturnURL = 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/return'
-    merData.BankType = bankType
 
+    if (deepLinkURL) {
+        merData.DeepLinkURL = deepLinkURL
+    }
 
     console.log('merData:', merData)
 
@@ -49,13 +50,13 @@ module.exports = async (req, res) => {
 
     const requestData = qs.stringify({
         MerID: merID,
-        Version: '1.2',
+        Version: '1.1',
         EncryptInfo: encryptInfo,
         HashInfo: hashInfo
     });
 
     try {
-        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/atm', requestData, {
+        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/linepay', requestData, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'payuni' }
         });
 
@@ -72,5 +73,6 @@ module.exports = async (req, res) => {
         res.send(parsed);
     } catch (err) {
         console.error('❌ Request Error:', err.response?.data || err.message);
+        res.status(500).send(err.message)
     }
 }
