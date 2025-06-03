@@ -21,7 +21,7 @@ todo: 判斷載具類型util（共用）
 | 整合支付頁   | upp    | 完成 |
 | 信用卡幕後   | credit | 完成 |
 | ATM     | atm    | 完成 |
-| 超商幕後    | CVS    |    |
+| 超商幕後    | CVS    | 完成 |
 | LINE幕後  | line   |    |
 | AFTEE幕後 | aftee  |    |
 
