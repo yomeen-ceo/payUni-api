@@ -1,10 +1,11 @@
+
 const { encrypt, decrypt, sha256 } = require('../../../utils/payuni-crypto.js');
 const qs = require("querystring");
 const axios = require('axios');
 
 /**
- * @api {post /linepay
- * @apiName linepay     LINE Pay幕後
+ * @api {post /aftee
+ * @apiName aftee       AFTEE幕後
  * @apiGroup payment
  * @apiParam {String}   merID           商店ID
  * @apiParam {String}   merKey          商店KEY
@@ -12,15 +13,10 @@ const axios = require('axios');
  * @apiParam {String}   prodDesc        商品名稱
  * @apiParam {String}   tradeAmt        訂單金額
  * @apiParam {String}   userMail        消費者信箱
- * @apiParam {Number}   buyerHash       買方會員Token Hash
- * @apiParam {Number}   carrierType     發票載具類別
- * @apiParam {Number}   carrierInfo     載具內容
- * @apiParam {Number}   invBuyerName    買方名稱或公司抬頭
- * @apiParam {Number}   deepLinkURL     可打開特定的應用內容，包含APP、網站等。(格式: 完整網址，此欄位有值時不會觸發ReturnURL)
  *
  */
 module.exports = async (req, res) => {
-    const { merID, merKey, merIv, prodDesc, tradeAmt, userMail, carrierType, carrierInfo, invBuyerName, deepLinkURL } = req.body;
+    const { merID, merKey, merIv, prodDesc, tradeAmt, userMail } = req.body;
 
     const merData = {}
 
@@ -32,15 +28,8 @@ module.exports = async (req, res) => {
     merData.ProdDesc = prodDesc
     merData.TradeAmt = tradeAmt
     merData.UserMail = userMail || ''
-    merData.CarrierType = carrierType || ''
-    merData.CarrierInfo = carrierInfo || ''
-    merData.InvBuyerName = invBuyerName || ''
     merData.NotifyURL = 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/notify'
     merData.ReturnURL = 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/return'
-
-    if (deepLinkURL) {
-        merData.DeepLinkURL = deepLinkURL
-    }
 
     console.log('merData:', merData)
 
@@ -50,13 +39,13 @@ module.exports = async (req, res) => {
 
     const requestData = qs.stringify({
         MerID: merID,
-        Version: '1.1',
+        Version: '1.0',
         EncryptInfo: encryptInfo,
         HashInfo: hashInfo
     });
 
     try {
-        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/linepay', requestData, {
+        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/aftee_direct', requestData, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'payuni' }
         });
 
