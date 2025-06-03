@@ -26,6 +26,7 @@ const axios = require('axios');
  *
  */
 module.exports = async (req, res) => {
+    console.log('/payment/credit')
 
     const {
         merID,
@@ -36,38 +37,61 @@ module.exports = async (req, res) => {
         cardNo,
         cardExpired,
         cardCVC,
-        // creditToken,
-        // creditTokenType,
-        // creditTokenExpired,
-        // creditHash,
+        creditToken,
+        creditTokenType,
+        creditTokenExpired,
+        creditHash,
         userMail,
         carrierType,
         carrierInfo,
-        invBuyerName
+        invBuyerName,
+        userIP,
+        buyerHash,
     } = req.body;
 
-    const merTradeNo = `ORDER${Date.now()}`;
-    const merData = {
-        MerID: merID,
-        Timestamp: Math.floor(Date.now() / 1000),
-        MerTradeNo: merTradeNo,
-        ProdDesc: prodDesc,
-        TradeAmt: tradeAmt,
-        CardNo: cardNo || '4147631000000001',
-        CardExpired: cardExpired || '0630',
-        CardCVC: cardCVC || '123',
-        // CreditTokenType: creditTokenType || '',
-        // CreditToken: creditToken || '',
-        // CreditTokenExpired: creditTokenExpired || '',
-        // CreditHash: creditHash || '',
-        UserMail: userMail || '',
-        CarrierType:  carrierType || '',
-        CarrierInfo: carrierInfo || '',
-        InvBuyerName: invBuyerName || '',
-        NotifyURL: 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/notify',
-        ReturnURL: 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/return',
-        API3D: 1
+    const merData = {}
+
+    merData.MerTradeNo = `ORDER${Date.now()}`;
+    merData.MerID= merID
+    merData.MerKey= merKey
+    merData.merIv= merIv
+    merData.Timestamp = Math.floor(Date.now() / 1000)
+    merData.ProdDesc = prodDesc
+    merData.TradeAmt = tradeAmt
+    merData.UserMail = userMail || ''
+    merData.CarrierType = carrierType || ''
+    merData.CarrierInfo = carrierInfo || ''
+    merData.InvBuyerName = invBuyerName || ''
+    merData.NotifyURL = 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/notify'
+    merData.ReturnURL = 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/return'
+    // API3D: 1
+
+    if (cardNo || cardExpired || cardCVC) {
+        console.log('使用信用卡號')
+        merData.CardNo = cardNo || '4147631000000001'
+        merData.CardExpired = cardExpired || '0630'
+        merData.CardCVC = cardCVC || '123'
     }
+
+    if (creditHash) {
+        console.log('使用信用卡Hash')
+        merData.CreditTokenType = creditTokenType
+        merData.CreditToken = creditToken
+        merData.CreditTokenExpired = creditTokenExpired
+        merData.CreditHash = creditHash
+    }
+
+    if (userIP) {
+        console.log('可紀錄使用者IP')
+        merData.userIP = userIP
+    }
+
+    if (buyerHash) {
+        merData.buyerHash = buyerHash
+    }
+
+    console.log('merData:', merData)
+
 
     const plaintext = qs.stringify(merData);
     const encryptInfo = encrypt(plaintext, merKey, merIv)
@@ -85,13 +109,13 @@ module.exports = async (req, res) => {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
 
-        // console.log('✅ Credit Transaction Response:', responseData.data);
+        console.log('✅ Credit Transaction Response:', responseData.data);
 
         const encryptHex = responseData.data.EncryptInfo; // ← 換成實際 EncryptInfo 回傳值
 
         // 解密
         const decrypted = decrypt(encryptHex, merKey, merIv);
-        // console.log('✅ 解密後內容:', decrypted);
+        console.log('✅ 解密後內容:', decrypted);
         // 先解析 URL query string
         const parsed = qs.parse(decrypted);
         console.log(parsed)
