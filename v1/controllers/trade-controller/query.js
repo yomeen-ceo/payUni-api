@@ -3,7 +3,7 @@ const qs = require("querystring");
 const axios = require('axios');
 
 /**
- * @api {post} /api/trade/query 交易查詢（Credit API）
+ * @api {post} /query 交易查詢（Credit API）
  * @apiName query
  * @apiGroup trade
  *

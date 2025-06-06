@@ -71,6 +71,7 @@ module.exports = async (req, res) => {
         merData.CardNo = cardNo || '4147631000000001'
         merData.CardExpired = cardExpired || '0630'
         merData.CardCVC = cardCVC || '123'
+        merData.CreditToken = creditToken || ''
     }
 
     if (creditHash) {

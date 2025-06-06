@@ -42,6 +42,6 @@ app.get('/order', (req, res) => {
 // cloud run 要用8080port
 const port = parseInt(process.env.PORT) || 8080;
 app.listen(port, () => {
-    console.log(`hello world: listening on port ${port}`);
+    console.log(`yomeen PayUni: listening on port ${port}`);
 });
 
