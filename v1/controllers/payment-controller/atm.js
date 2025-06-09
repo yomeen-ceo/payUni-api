@@ -72,5 +72,6 @@ module.exports = async (req, res) => {
         res.send(parsed);
     } catch (err) {
         console.error('❌ Request Error:', err.response?.data || err.message);
+        res.status(500).send(err.message)
     }
 }

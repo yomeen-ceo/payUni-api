@@ -29,9 +29,16 @@ const axios = require('axios');
  *     "Result[0][CardExpiredDT]": "0630"
  * }
  *
+ * 未帶正確token或是hash時的response
  * {
  *     "Status": "QUERY02001",
  *     "Message": "綁定Token|Hash，請擇一送入",
+ *     "MerID": "YOME1749113748"
+ * }
+ * 有帶token或是hash但資料不正確時的response
+ * {
+ *     "Status": "QUERY03001",
+ *     "Message": "查無符合綁定資料",
  *     "MerID": "YOME1749113748"
  * }
  */

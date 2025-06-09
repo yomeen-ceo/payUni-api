@@ -14,6 +14,14 @@ Google Cloud Run
 ### 交易建立
 #### /payment
 
+"綁定"信用卡token用法 
+1、在信用卡幕後交易request帶入creditToken
+2、從response中取得CreditHash存入資料庫
+A、後續該會員可不用再輸入信用卡資訊，送出信用卡幕後時不用帶信用卡資訊，只需要creditHash
+B、可由/v1/credit_bind/query用「creditToken」或「creditHash」查詢相關資訊
+C、可用/v1/credit_bind/cancel帶入「CreditHash」取消綁定，
+*註：沒找到「記憶」信用卡號相關api，只看到綁定的
+
 todo: 判斷載具類型util（共用）
 
 | 名稱      | api    | 進度 |

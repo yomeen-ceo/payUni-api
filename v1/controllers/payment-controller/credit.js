@@ -24,6 +24,35 @@ const axios = require('axios');
  * @apiParam {String}   carrierInfo         載具內容 | 當 CarrierType 為3J0002、CQ0001、Donate、Company 時,此欄必需填入對應資訊。
  * @apiParam {String}   invBuyerName        買方名稱或公司抬頭
  *
+ * 成功帶入信用卡token 「creditToken」取得之response範例，需要將creditHash存入資料庫
+ * {
+ *     "Status": "SUCCESS",
+ *     "Message": "授權成功",
+ *     "MerID": "YOME1749113748",
+ *     "MerTradeNo": "ORDER1749455901844",
+ *     "Gateway": "1",
+ *     "TradeNo": "1749455902654711792",
+ *     "TradeAmt": "2",
+ *     "TradeStatus": "1",
+ *     "PaymentType": "1",
+ *     "CardBank": "812",
+ *     "Card6No": "414763",
+ *     "Card4No": "0001",
+ *     "CardInst": "1",
+ *     "FirstAmt": "2",
+ *     "EachAmt": "0",
+ *     "ResCode": "00",
+ *     "ResCodeMsg": "授權成功(模擬)",
+ *     "AuthCode": "000000",
+ *     "AuthBank": "812",
+ *     "AuthBankName": "台新國際商業銀行",
+ *     "AuthType": "1",
+ *     "AuthDay": "20250609",
+ *     "AuthTime": "155822",
+ *     "CreditHash": "0B3A67C491847429A2FBD2D8A55BF0F7AD47ED3F888B9C497A07197CDFE11EA9",  <--- 後續可單獨帶這個欄位做交易驗證
+ *     "CreditLife": "0630"
+ * }
+ *
  */
 module.exports = async (req, res) => {
     console.log('/payment/credit')
@@ -122,6 +151,9 @@ module.exports = async (req, res) => {
         console.log(parsed)
         res.send(parsed);
     } catch (err) {
+        const decrypted = decrypt(err.data.EncryptInfo, merKey, merIv);
+        console.log('✅ 解密後內容:', decrypted);
         console.error('❌ Request Error:', err.response?.data || err.message);
+        res.status(500).send(err.message)
     }
 }
