@@ -1,10 +1,9 @@
-const { encrypt, decrypt, sha256 } = require('../../../utils/payuni-crypto.js');
+const { encrypt, decrypt, sha256 } = require('../../../../utils/payuni-crypto.js');
 const qs = require("querystring");
 const axios = require('axios');
 
 /**
- * @api {post} /close 交易請退款（Credit API）
- * @apiName close
+ * @api {post} /close/credit 交易請退款（Credit API）
  * @apiGroup trade
  *
  * @apiHeader {String} Content-Type application/x-www-form-urlencoded

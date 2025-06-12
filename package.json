@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "deploy": "gcloud run deploy yomeen-payuni-api --region asia-east1 --source . "
+    "deploy": "gcloud run deploy yomeen-payuni-api --region asia-east1 --source ."
   },
   "engines": {
     "node": ">=20.0.0"

@@ -9,10 +9,17 @@ Google Cloud Run
 2、改用Google Cloud Secret Manager儲存
 3、目前使用yomeen-payuni-api當service name，可替換，若要佈署可換名稱，目前npm run deploy是直接佈署到這個名稱
 
-## 進度
+---
 
-### 交易建立
-#### /payment
+---
+
+# 進度
+
+--- 
+
+## 交易建立
+
+### /payment
 
 "綁定"信用卡token用法 
 1、在信用卡幕後交易request帶入creditToken
@@ -24,97 +31,110 @@ C、可用/v1/credit_bind/cancel帶入「CreditHash」取消綁定，
 
 todo: 判斷載具類型util（共用）
 
-| 名稱      | api    | 進度 |
-|---------|--------|----|
-| 整合支付頁   | upp    | 完成 |
-| 信用卡幕後   | credit | 完成 |
-| ATM     | atm    | 完成 |
-| 超商幕後    | CVS    | 完成 |
-| LINE幕後  | line   | 完成 |
-| AFTEE幕後 | aftee  | 完成 |
+| 名稱      | api                 | 進度 |
+|---------|---------------------|----|
+| 整合支付頁   | /v1/payment/upp     | 完成 |
+| 信用卡幕後   | /v1/payment/credit  | 完成 |
+| ATM     | /v1/payment/atm     | 完成 |
+| 超商幕後    | /v1/payment/cvs     | 完成 |
+| LINE幕後  | /v1/payment/linepay | 完成 |
+| AFTEE幕後 | /v1/payment/aftee   | 完成 |
 
-### 交易查詢
+---
+
+## 交易查詢、確認、取消、退款
 #### /trade
 
-| 名稱     | api          | 進度 |
-|--------|--------------|----|
-| 單筆交易查詢 | query        | 完成 |
-| 多筆交易查詢 | finite_query | 完成 |
+### 查詢
 
-### 交易請退款(credit)
-#### /trade
+| 名稱     | api                    | 進度 |
+|--------|------------------------|----|
+| 單筆交易查詢 | /v1/trade/query        | 完成 |
+| 多筆交易查詢 | /v1/trade/finite-query | 完成 |
 
-| 名稱      | api    | 進度 |
-|---------|--------|----|
-| 交易請退款   | close  | 完成 |
+| 名稱   | api                      | 進度 |
+|------|--------------------------|----|
+| 撥款查詢 | /v1/trade/grant_query    |    |
+| 提領查詢 | /v1/trade/withdraw_query |    |
 
-### 交易取消(credit)
-#### /trade
+### 確認
 
-| 名稱     | api    | 進度 |
-|--------|--------|----|
-| 交易取消授權 | cancel | 完成 |
+| 名稱             | api                     | 進度 |
+|----------------|-------------------------|----|
+| 後支付交易確認(aftee) | /v1/trade/confirm/aftee | 完成 |
 
-### 信用卡Token查詢(約定)(CREDIT)
-#### /credit_bind
+### 取消
+
+| 名稱            | api                     | 進度 |
+|---------------|-------------------------|----|
+| 信用卡交易取消授權     | /v1/trade/cancel/credit | 完成 |
+| 交易取消超商代碼(cvs) | /v1/trade/cancel/cvs    | 完成 |
+
+### 退款
+
+| 名稱        | api                    | 進度 |
+|-----------|------------------------|----|
+| 信用卡交易請退款  | /v1/trade/close/credit | 完成 |
+
+| 名稱           | api                         | 進度 |
+|--------------|-----------------------------|----|
+| 後支付退款(AFTEE) | /v1/trade/refund/aftee      | 完成 |
+| 愛金卡退款(ICASH) | /v1/trade/refund/icash      |    |
+| LINE Pay退款   | /v1/trade/refund/linepay    |    |
+| 街口支付退款       | /v1/trade/refund/jkopay     |    |
+| 非信用卡退款轉匯     | /v1/trade/refund/not-credit |    |
+
+### 取消退款
+
+| 名稱         | api                                | 進度 |
+|------------|------------------------------------|----|
+| 非信用卡退款轉匯取消 | /v1/trade/cancel_refund/not-credit |    |
+
+
+---
+
+## 信用卡綁定相關api
+### /credit_bind
+
+#### 信用卡Token查詢(約定)(CREDIT)
 
 | 名稱     | api   | 進度 |
 |--------|-------|----|
 | 交易取消授權 | query | 完成 |
 
-### 信用卡Token取消(約定/記憶卡號)(CREDIT)
-#### /credit_bind
+#### 信用卡Token取消(約定/記憶卡號)(CREDIT)
 
-| 名稱         | api    | 進度 |
-|------------|--------|----|
-| 信用卡Token取消 | cancel | 完成 |
+| 名稱         | api                    | 進度 |
+|------------|------------------------|----|
+| 信用卡Token取消 | /v1/credit_bind/cancel | 完成 |
+
+---
+
+### 續期收款
+#### /api/period
+
+| 名稱           | api       | 進度 |
+|--------------|-----------|----|
+| 續期收款-支付頁     | Page      |    |
+| 續期收款幕後       | /         |    |
+| 續期收款狀態修改     | mdfStatus |    |
+| 續期收款訂單內容修改   | Modify    |    |
+| 續期收款訂單查詢     | query     |    |
+| 續期收款卡號修改-幕後  | exchange  |    |
+| 續期收款卡號修改-支付頁 | exchange  |    |
+
+---
 
 ### 分段請求
 #### /async
+
+*目前沒有覺得有必要用這個功能，先暫緩串接
 
 | 名稱   | api   | 進度 |
 |------|-------|----|
 | 分段請求 | async |    |
 
-### 交易確認
-#### /confirm
-
-| 名稱  | api   | 進度 |
-|-----|-------|----|
-| 後支付 | aftee |    |
-
-### 交易取消超商代碼(CVS)
-#### /api
-
-| 名稱       | api        | 進度 |
-|----------|------------|----|
-| 交易取消超商代碼 | cancel_cvs |    |
-
-### 交易退款
-#### /trade/common/refund
-
-| 名稱           | api     | 進度 |
-|--------------|---------|----|
-| 愛金卡退款(ICASH) | icash   |    |
-| 後支付退款(AFTEE) | aftee   |    |
-| LINE Pay退款   | linepay |    |
-| 街口支付退款       | jkopay  |    |
-
-### 非信用卡退款轉匯
-#### /trade/offline
-
-| 名稱         | api           | 進度 |
-|------------|---------------|----|
-| 非信用卡退款轉匯   | refund        |    |
-| 非信用卡退款轉匯取消 | cancel_refund |    |
-
-### 撥款提領查詢
-#### /trade
-
-| 名稱   | api            | 進度 |
-|------|----------------|----|
-| 撥款查詢 | grant_query    |    |
-| 提領查詢 | withdraw_query |    |
+---
 
 ### 物流工具
 #### /api/logistics
@@ -139,18 +159,8 @@ todo: 判斷載具類型util（共用）
 | 呼叫黑貓(背景)            | call_cat           |    |
 | 建立宅配退貨單(背景)         | refund             |    |
 
-### 續期收款
-#### /api/period
 
-| 名稱           | api       | 進度 |
-|--------------|-----------|----|
-| 續期收款-支付頁     | Page      |    |
-| 續期收款幕後       | /         |    |
-| 續期收款狀態修改     | mdfStatus |    |
-| 續期收款訂單內容修改   | Modify    |    |
-| 續期收款訂單查詢     | query     |    |
-| 續期收款卡號修改-幕後  | exchange  |    |
-| 續期收款卡號修改-支付頁 | exchange  |    |
+---
 
 
 ## Notify處理

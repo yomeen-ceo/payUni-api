@@ -1,10 +1,9 @@
-const { encrypt, decrypt, sha256 } = require('../../../utils/payuni-crypto.js');
+const { encrypt, decrypt, sha256 } = require('../../../../utils/payuni-crypto.js');
 const qs = require("querystring");
 const axios = require('axios');
 
 /**
- * @api {post} /cancel 交易請退款（Credit API）
- * @apiName cancel
+ * @api {post} /confirm/aftee 交易請退款（Credit API）
  * @apiGroup trade
  *
  * @apiHeader {String} Content-Type application/x-www-form-urlencoded
@@ -14,35 +13,14 @@ const axios = require('axios');
  * @apiParam {String}   merIv           商店IV
  * @apiParam {String}   tradeNo         UNi序號
  *
- *     信用卡交易取消授權，信用卡已完成授權的交易，尚未執行請款可透過此功能向銀行發動取消授權訊息
- *     包含以下：
- *     信用卡一次付清
- *     分期付款
- *     紅利折抵
- *     國外卡
- *     已授權之信用卡交易，但尚未請款，若有取消訂單發生可自行發動取消授權。
- *
- *
- *
+ * aftee款項確認成功範例
  * {
- *     "Status": "CANCEL03001",
- *     "Message": "取消授權失敗，已存在請款成功紀錄 (2025-05-22 17:58:19)",
- *     "MerID": "S06541049",
- *     "TradeNo": "1747907897637487065"
- * }
- *
- * {
- *     "Status": "SUCCESS",
- *     "Message": "取消授權成功",
- *     "MerID": "S06541049",
- *     "TradeNo": "1748448612217903125"
- * }
- *
- * {
- *     "Status": "CANCEL03001",
- *     "Message": "取消授權失敗，訂單不為付款成功",
- *     "MerID": "S06541049",
- *     "TradeNo": "1748448612217903125"
+ *     "Status": "CONFIRM03005",
+ *     "Message": "訂單已確認(AFTEE)",
+ *     "MerID": "YOME88886666",
+ *     "TradeNo": "1749552629788334673",
+ *     "TradeAmt": "211",
+ *     "ConfirmDT": ""
  * }
  *
  */
@@ -67,8 +45,8 @@ module.exports = async (req, res) => {
     });
 
     try {
-        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/trade/cancel', requestData, {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/trade/common/confirm/aftee', requestData, {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'payuni' }
         });
 
         const encryptHex = responseData.data.EncryptInfo; // ← 換成實際 EncryptInfo 回傳值
@@ -82,7 +60,8 @@ module.exports = async (req, res) => {
 
         res.send(parsed);
     } catch (err) {
+        const errMessage = err.response?.data || err.message;
         console.error('❌ Request Error:', err.response?.data || err.message);
-        res.status(500).send(err.message)
+        res.status(500).send(errMessage)
     }
 }

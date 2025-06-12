@@ -62,11 +62,10 @@ module.exports = async (req, res) => {
         merData.CreditToken= creditToken
     }
 
-
     const plaintext = qs.stringify(merData);
     const encryptInfo = encrypt(plaintext, merKey, merIv)
     const hashInfo = sha256(encryptInfo, merKey, merIv)
-
+œ
     const requestData = qs.stringify({
         MerID: merID,
         Version: '1.0',

@@ -2,6 +2,8 @@ const { decrypt } = require('../../../utils/payuni-crypto.js');
 const qs = require("querystring");
 module.exports = async (req, res) => {
     const raw = req.body;
+    console.log('raw:')
+    console.log(raw)
     console.log(JSON.stringify(raw));
     // PayUni 會帶回這些欄位（含 EncryptInfo）
     const { EncryptInfo } = raw;
@@ -22,7 +24,7 @@ module.exports = async (req, res) => {
         console.log(result)
         // ✅ 顯示交易結果
         res.send(`
-      <h2>這裡幕後交易完後自動回傳的網頁 /v1/payment/return</h2>
+      <h2>這裡是幕後交易完後自動回傳的網頁 /v1/payment/return</h2>
       <h2>交易結果</h2>
       <p>狀態：${result.Status}</p>
       <p>訂單編號：${result.MerTradeNo}</p>
