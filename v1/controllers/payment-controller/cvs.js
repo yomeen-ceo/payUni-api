@@ -1,6 +1,7 @@
 const { encrypt, decrypt, sha256 } = require('../../../utils/payuni-crypto.js');
 const qs = require("querystring");
 const axios = require('axios');
+const getPayuniUrl = require('../../../utils/get-payuni-urls');
 
 /**
  * @api {post /cvs
@@ -19,7 +20,7 @@ const axios = require('axios');
  *
  */
 module.exports = async (req, res) => {
-    const { merID, merKey, merIv, prodDesc, tradeAmt, userMail, carrierType, carrierInfo, invBuyerName } = req.body;
+    const { merID, merKey, merIv, prodDesc, tradeAmt, userMail, carrierType, carrierInfo, invBuyerName, isSandbox } = req.body;
 
     const merData = {}
 
@@ -50,22 +51,29 @@ module.exports = async (req, res) => {
         HashInfo: hashInfo
     });
 
+    const apiUrl = getPayuniUrl('cvs', isSandbox);
+    console.log('apiUrl:', apiUrl);
+
     try {
-        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/cvs', requestData, {
+        const responseData = await axios.post(apiUrl, requestData, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'payuni' }
         });
 
         // console.log('✅ Credit Transaction Response:', responseData.data);
+        if (responseData.data.EncryptInfo) {
+            const encryptHex = responseData.data.EncryptInfo; // ← 換成實際 EncryptInfo 回傳值
 
-        const encryptHex = responseData.data.EncryptInfo; // ← 換成實際 EncryptInfo 回傳值
-
-        // 解密
-        const decrypted = decrypt(encryptHex, merKey, merIv);
-        // console.log('✅ 解密後內容:', decrypted);
-        // 先解析 URL query string
-        const parsed = qs.parse(decrypted);
-        console.log(parsed)
-        res.send(parsed);
+            // 解密
+            const decrypted = decrypt(encryptHex, merKey, merIv);
+            console.log('✅ 解密後內容:', decrypted);
+            // 先解析 URL query string
+            const parsed = qs.parse(decrypted);
+            console.log(parsed)
+            res.send(parsed);
+        } else {
+            console.log('Credit Transaction Response:', responseData.data.Status);
+            res.send(responseData.data);
+        }
     } catch (err) {
         console.error('❌ Request Error:', err.response?.data || err.message);
         res.status(500).send(err.message)

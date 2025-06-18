@@ -1,6 +1,7 @@
 const { encrypt, decrypt, sha256 } = require('../../../utils/payuni-crypto.js');
 const qs = require("querystring");
 const axios = require('axios');
+const getPayuniUrl = require('../../../utils/get-payuni-urls');
 
 /**
  * @api {post} /query 交易查詢（Credit API）
@@ -61,7 +62,7 @@ const axios = require('axios');
  */
 
 module.exports = async (req, res) => {
-    const { merID, merKey, merIv, merTradeNo } = req.body;
+    const { merID, merKey, merIv, merTradeNo, isSandbox } = req.body;
     const merData = {
         MerID: merID,
         MerTradeNo: merTradeNo,
@@ -78,30 +79,41 @@ module.exports = async (req, res) => {
         EncryptInfo: encryptInfo,
         HashInfo: hashInfo
     });
-
+    const apiUrl = getPayuniUrl('query', isSandbox);
+    // console.log('apiUrl:', apiUrl);
     try {
-        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/trade/query', requestData, {
+        const responseData = await axios.post(apiUrl, requestData, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
 
-        // console.log('✅ Credit Transaction Response:', responseData.data);
+        console.log('✅ Credit Transaction Response:', responseData.data);
+        if (responseData.data.EncryptInfo) {
+            const encryptHex = responseData.data.EncryptInfo; // ← 換成實際 EncryptInfo 回傳值
 
-        const encryptHex = responseData.data.EncryptInfo; // ← 換成實際 EncryptInfo 回傳值
-
-        // 解密
-        const decrypted = decrypt(encryptHex, merKey, merIv);
-        console.log('✅ 解密後內容:', decrypted);
-        // 先解析 URL query string
-        const parsed = qs.parse(decrypted);
-        // console.log('parsed', parsed);
-        const result = {};
-        for (const [key, value] of Object.entries(parsed)) {
-            const match = key.match(/^Result\[0]\[(.+)]$/);
-            if (match) {
-                result[match[1]] = value;
+            // 解密
+            const decrypted = decrypt(encryptHex, merKey, merIv);
+            console.log('✅ 解密後內容:', decrypted);
+            // 先解析 URL query string
+            const parsed = qs.parse(decrypted);
+            console.log('parsed', parsed);
+            if (Object.getPrototypeOf(parsed) !== null) {
+                const result = {};
+                for (const [key, value] of Object.entries(parsed)) {
+                    const match = key.match(/^Result\[0]\[(.+)]$/);
+                    if (match) {
+                        result[match[1]] = value;
+                    }
+                }
+                res.send(result);
+            } else {
+                res.send(qs.parse(decrypted));
             }
+
+        } else {
+            console.log('Credit Transaction Response:', responseData.data.Status);
+            res.send(responseData.data);
         }
-        res.send(result);
+
     } catch (err) {
         console.error('❌ Request Error:', err.response?.data || err.message);
         res.status(500).send(err.message)

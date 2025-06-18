@@ -1,4 +1,5 @@
 const { encrypt, decrypt, sha256 } = require('../../../utils/payuni-crypto.js');
+const getPayuniUrl = require('../../../utils/get-payuni-urls');
 const qs = require("querystring");
 const axios = require('axios');
 
@@ -76,6 +77,7 @@ module.exports = async (req, res) => {
         invBuyerName,
         userIP,
         buyerHash,
+        isSandbox
     } = req.body;
 
     const merData = {}
@@ -133,23 +135,29 @@ module.exports = async (req, res) => {
         EncryptInfo: encryptInfo,
         HashInfo: hashInfo
     });
-
+    const apiUrl = getPayuniUrl('credit', isSandbox);
+    console.log('apiUrl:', apiUrl);
     try {
-        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/credit', requestData, {
+        const responseData = await axios.post(apiUrl, requestData, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'payuni' }
         });
 
         console.log('✅ Credit Transaction Response:', responseData.data);
+        if (responseData.data.EncryptInfo) {
+            const encryptHex = responseData.data.EncryptInfo; // ← 換成實際 EncryptInfo 回傳值
 
-        const encryptHex = responseData.data.EncryptInfo; // ← 換成實際 EncryptInfo 回傳值
+            // 解密
+            const decrypted = decrypt(encryptHex, merKey, merIv);
+            console.log('✅ 解密後內容:', decrypted);
+            // 先解析 URL query string
+            const parsed = qs.parse(decrypted);
+            console.log(parsed)
+            res.send(parsed);
+        } else {
+            console.log('Credit Transaction Response:', responseData.data.Status);
+            res.send(responseData.data);
+        }
 
-        // 解密
-        const decrypted = decrypt(encryptHex, merKey, merIv);
-        console.log('✅ 解密後內容:', decrypted);
-        // 先解析 URL query string
-        const parsed = qs.parse(decrypted);
-        console.log(parsed)
-        res.send(parsed);
     } catch (err) {
         const decrypted = decrypt(err.data.EncryptInfo, merKey, merIv);
         console.log('✅ 解密後內容:', decrypted);

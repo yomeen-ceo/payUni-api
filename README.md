@@ -79,9 +79,9 @@ todo: 判斷載具類型util（共用）
 | 名稱           | api                         | 進度 |
 |--------------|-----------------------------|----|
 | 後支付退款(AFTEE) | /v1/trade/refund/aftee      | 完成 |
-| 愛金卡退款(ICASH) | /v1/trade/refund/icash      |    |
-| LINE Pay退款   | /v1/trade/refund/linepay    |    |
-| 街口支付退款       | /v1/trade/refund/jkopay     |    |
+| 愛金卡退款(ICASH) | /v1/trade/refund/icash      | 完成 |
+| LINE Pay退款   | /v1/trade/refund/linepay    | 完成 |
+| 街口支付退款       | /v1/trade/refund/jkopay     | 完成 |
 | 非信用卡退款轉匯     | /v1/trade/refund/not-credit |    |
 
 ### 取消退款

@@ -3,7 +3,7 @@ const qs = require("querystring");
 const axios = require('axios');
 
 /**
- * @api {post} /refund/aftee 後支付退款(AFTEE)
+ * @api {post} /refund/jkopay 街口交易退款
  * @apiGroup trade
  *
  * @apiHeader {String} Content-Type application/x-www-form-urlencoded
@@ -14,26 +14,6 @@ const axios = require('axios');
  * @apiParam {String}   tradeNo         UNi序號
  * @apiParam {String}   tradeAmt        訂單金額
  *
- * 退款成功範例
- * {
- *     "Status": "SUCCESS",
- *     "Message": "訂單退款成功",
- *     "MerID": "YOME88886666",
- *     "TradeNo": "1749552629788334673",
- *     "RefundAmt": "21",
- *     "RefundNo": "test_1749713121",
- *     "RefundDT": "2025-06-12 15:25:21"
- * }
- * 退到超過範例
- * {
- *     "Status": "REFUND04005",
- *     "Message": "超過可退款金額(AFTEE)",
- *     "MerID": "YOME88886666",
- *     "TradeNo": "1749552629788334673",
- *     "RefundAmt": "210",
- *     "RefundNo": "",
- *     "RefundDT": ""
- * }
  *
  */
 
@@ -58,7 +38,7 @@ module.exports = async (req, res) => {
     });
 
     try {
-        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/trade/common/refund/aftee', requestData, {
+        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/trade/common/refund/jkopay', requestData, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'payuni' }
         });
 

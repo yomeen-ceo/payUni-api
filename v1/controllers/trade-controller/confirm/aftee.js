@@ -3,7 +3,7 @@ const qs = require("querystring");
 const axios = require('axios');
 
 /**
- * @api {post} /confirm/aftee 交易請退款（Credit API）
+ * @api {post} /confirm/aftee 後支付確認(AFTEE)
  * @apiGroup trade
  *
  * @apiHeader {String} Content-Type application/x-www-form-urlencoded

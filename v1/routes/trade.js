@@ -21,12 +21,17 @@ router.post('/confirm/aftee', tradeController.confirmAftee)
 
 //後支付退款(AFTEE)
 router.post('/refund/aftee', tradeController.refundAftee)
-//
-// //愛金卡退款(ICASH)
-// router.post('/refund/icash', tradeController.refundIcash)
-//
-// //LINE Pay退款
-// router.post('/refund/linepay', tradeController.refundLinePay)
-//
+
+//愛金卡退款(ICASH)
+router.post('/refund/icash', tradeController.refundIcash)
+
+//LINE Pay退款
+router.post('/refund/linepay', tradeController.refundLinepay)
+
+//街口支付退款
+router.post('/refund/jkopay', tradeController.refundJkopay)
+
+
+
 
 module.exports = router;
