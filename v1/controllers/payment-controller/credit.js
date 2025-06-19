@@ -1,7 +1,6 @@
-const { encrypt, decrypt, sha256 } = require('../../../utils/payuni-crypto.js');
-const getPayuniUrl = require('../../../utils/get-payuni-urls');
+const { encrypt, sha256 } = require('../../../utils/payuni-crypto.js');
 const qs = require("querystring");
-const axios = require('axios');
+const { apiProcess } = require('../../../utils/payuni-apiworker.js');
 
 
 /**
@@ -56,8 +55,6 @@ const axios = require('axios');
  *
  */
 module.exports = async (req, res) => {
-    console.log('/payment/credit')
-
     const {
         merID,
         merKey,
@@ -79,9 +76,7 @@ module.exports = async (req, res) => {
         buyerHash,
         isSandbox
     } = req.body;
-
     const merData = {}
-
     merData.MerTradeNo = `ORDER${Date.now()}`;
     merData.MerID= merID
     merData.MerKey= merKey
@@ -96,7 +91,6 @@ module.exports = async (req, res) => {
     merData.NotifyURL = 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/notify'
     merData.ReturnURL = 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/payment/return'
     // API3D: 1
-
     if (cardNo || cardExpired || cardCVC) {
         console.log('使用信用卡號')
         merData.CardNo = cardNo || '4147631000000001'
@@ -104,7 +98,6 @@ module.exports = async (req, res) => {
         merData.CardCVC = cardCVC || '123'
         merData.CreditToken = creditToken || ''
     }
-
     if (creditHash) {
         console.log('使用信用卡Hash')
         merData.CreditTokenType = creditTokenType
@@ -112,56 +105,21 @@ module.exports = async (req, res) => {
         merData.CreditTokenExpired = creditTokenExpired
         merData.CreditHash = creditHash
     }
-
     if (userIP) {
         console.log('可紀錄使用者IP')
         merData.userIP = userIP
     }
-
     if (buyerHash) {
         merData.buyerHash = buyerHash
     }
-
-    console.log('merData:', merData)
-
-
     const plaintext = qs.stringify(merData);
     const encryptInfo = encrypt(plaintext, merKey, merIv)
     const hashInfo = sha256(encryptInfo, merKey, merIv)
-
-    const requestData = qs.stringify({
+    const payLoad = qs.stringify({
         MerID: merID,
         Version: '1.2',
         EncryptInfo: encryptInfo,
         HashInfo: hashInfo
     });
-    const apiUrl = getPayuniUrl('credit', isSandbox);
-    console.log('apiUrl:', apiUrl);
-    try {
-        const responseData = await axios.post(apiUrl, requestData, {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'payuni' }
-        });
-
-        console.log('✅ Credit Transaction Response:', responseData.data);
-        if (responseData.data.EncryptInfo) {
-            const encryptHex = responseData.data.EncryptInfo; // ← 換成實際 EncryptInfo 回傳值
-
-            // 解密
-            const decrypted = decrypt(encryptHex, merKey, merIv);
-            console.log('✅ 解密後內容:', decrypted);
-            // 先解析 URL query string
-            const parsed = qs.parse(decrypted);
-            console.log(parsed)
-            res.send(parsed);
-        } else {
-            console.log('Credit Transaction Response:', responseData.data.Status);
-            res.send(responseData.data);
-        }
-
-    } catch (err) {
-        const decrypted = decrypt(err.data.EncryptInfo, merKey, merIv);
-        console.log('✅ 解密後內容:', decrypted);
-        console.error('❌ Request Error:', err.response?.data || err.message);
-        res.status(500).send(err.message)
-    }
+    await apiProcess(res, 'credit', payLoad, merKey, merIv, isSandbox);
 }

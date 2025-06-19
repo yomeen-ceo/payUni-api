@@ -1,7 +1,6 @@
-const { encrypt, decrypt, sha256 } = require('../../../utils/payuni-crypto.js');
+const { encrypt, sha256 } = require('../../../utils/payuni-crypto.js');
 const qs = require("querystring");
-const axios = require('axios');
-
+const { apiProcess } = require('../../../utils/payuni-apiworker.js');
 /**
  * @api {post} /query 交易查詢（Credit API）
  * @apiName query
@@ -61,7 +60,7 @@ const axios = require('axios');
  */
 
 module.exports = async (req, res) => {
-    const { merID, merKey, merIv, merTradeNoArray } = req.body;
+    const { merID, merKey, merIv, merTradeNoArray, isSandbox } = req.body;
     const queryNo = merTradeNoArray.join(',');
 
     const merData = {
@@ -75,29 +74,11 @@ module.exports = async (req, res) => {
     const encryptInfo = encrypt(plaintext, merKey, merIv)
     const hashInfo = sha256(encryptInfo, merKey, merIv)
 
-    const requestData = qs.stringify({
+    const payLoad = qs.stringify({
         MerID: merID,
         Version: '1.0',
         EncryptInfo: encryptInfo,
         HashInfo: hashInfo
     });
-
-    try {
-        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/trade/finite_query', requestData, {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-
-        // console.log('✅ Credit Transaction Response:', responseData.data);
-
-        const encryptHex = responseData.data.EncryptInfo; // ← 換成實際 EncryptInfo 回傳值
-
-        // 解密
-        const decrypted = decrypt(encryptHex, merKey, merIv);
-        console.log('✅ 解密後內容:', decrypted);
-        const result = JSON.parse(decrypted);
-        res.status(200).json(result);
-    } catch (err) {
-        console.error('❌ Request Error:', err.response?.data || err.message);
-        res.status(500).send(err.message)
-    }
+    await apiProcess(res, 'finiteQuery', payLoad, merKey, merIv, isSandbox);
 }

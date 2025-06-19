@@ -1,7 +1,6 @@
-const { encrypt, decrypt, sha256 } = require('../../../utils/payuni-crypto.js');
+const { encrypt, sha256 } = require('../../../utils/payuni-crypto.js');
 const qs = require("querystring");
-const axios = require('axios');
-const getPayuniUrl = require('../../../utils/get-payuni-urls');
+const { apiProcess } = require('../../../utils/payuni-apiworker.js');
 
 /**
  * @api {post} /query 交易查詢（Credit API）
@@ -68,54 +67,14 @@ module.exports = async (req, res) => {
         MerTradeNo: merTradeNo,
         Timestamp: Math.floor(Date.now() / 1000),
     }
-
     const plaintext = qs.stringify(merData);
     const encryptInfo = encrypt(plaintext, merKey, merIv)
     const hashInfo = sha256(encryptInfo, merKey, merIv)
-
-    const requestData = qs.stringify({
+    const payLoad = qs.stringify({
         MerID: merID,
         Version: '2.0',
         EncryptInfo: encryptInfo,
         HashInfo: hashInfo
     });
-    const apiUrl = getPayuniUrl('query', isSandbox);
-    // console.log('apiUrl:', apiUrl);
-    try {
-        const responseData = await axios.post(apiUrl, requestData, {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-
-        console.log('✅ Credit Transaction Response:', responseData.data);
-        if (responseData.data.EncryptInfo) {
-            const encryptHex = responseData.data.EncryptInfo; // ← 換成實際 EncryptInfo 回傳值
-
-            // 解密
-            const decrypted = decrypt(encryptHex, merKey, merIv);
-            console.log('✅ 解密後內容:', decrypted);
-            // 先解析 URL query string
-            const parsed = qs.parse(decrypted);
-            console.log('parsed', parsed);
-            if (Object.getPrototypeOf(parsed) !== null) {
-                const result = {};
-                for (const [key, value] of Object.entries(parsed)) {
-                    const match = key.match(/^Result\[0]\[(.+)]$/);
-                    if (match) {
-                        result[match[1]] = value;
-                    }
-                }
-                res.send(result);
-            } else {
-                res.send(qs.parse(decrypted));
-            }
-
-        } else {
-            console.log('Credit Transaction Response:', responseData.data.Status);
-            res.send(responseData.data);
-        }
-
-    } catch (err) {
-        console.error('❌ Request Error:', err.response?.data || err.message);
-        res.status(500).send(err.message)
-    }
+    await apiProcess(res, 'query', payLoad, merKey, merIv, isSandbox);
 }
