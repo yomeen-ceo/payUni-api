@@ -18,7 +18,18 @@ const axios = require('axios');
  */
 
 module.exports = async (req, res) => {
-    const { merID, merKey, merIv, tradeNo, tradeAmt } = req.body;
+    require('dotenv').config();
+    const { tradeNo, tradeAmt, isSandbox } = req.body;
+    // 優先使用 request body 的金鑰，若無則從環境變數讀取
+    const merID = req.body.merID || process.env.MER_ID;
+    const merKey = req.body.merKey || process.env.MER_KEY;
+    const merIv = req.body.merIv || process.env.MER_IV;
+
+    const useSandbox = isSandbox === true || isSandbox === 'true';
+    const apiUrl = useSandbox
+        ? 'https://sandbox-api.payuni.com.tw/api/trade/common/refund/linepay'
+        : 'https://api.payuni.com.tw/api/trade/common/refund/linepay';
+
     const merData = {
         MerID: merID,
         TradeNo: tradeNo,
@@ -38,7 +49,7 @@ module.exports = async (req, res) => {
     });
 
     try {
-        const responseData = await axios.post('https://sandbox-api.payuni.com.tw/api/trade/common/refund/linepay', requestData, {
+        const responseData = await axios.post(apiUrl, requestData, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'payuni' }
         });
 

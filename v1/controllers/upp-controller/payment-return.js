@@ -1,5 +1,7 @@
 const { decrypt } = require('../../../utils/payuni-crypto.js');
 const qs = require("querystring");
+const fs = require('fs');
+const path = require('path');
 
 /**
  * @api {post /result 接收payuni回傳前端資料，notify還沒寫
@@ -30,14 +32,16 @@ module.exports = async (req, res) => {
         const decrypted = decrypt(EncryptInfo, merKey, merIv);
         const result = qs.parse(decrypted);
         console.log(result)
-        // ✅ 顯示交易結果
-        res.send(`
-      <h2>交易結果</h2>
-      <p>狀態：${result.Status}</p>
-      <p>訂單編號：${result.MerTradeNo}</p>
-      <p>交易金額：${result.TradeAmt}</p>
 
-    `);
+        // ✅ MVC 分離：讀取 View 模板
+        const viewPath = path.join(__dirname, '../../views/payment-result.html');
+        let template = fs.readFileSync(viewPath, 'utf-8');
+
+        // 注入資料到模板 (將 %%RESULT_DATA%% 替換為實際 JSON)
+        const resultJson = JSON.stringify(result);
+        const html = template.replace('%%RESULT_DATA%%', resultJson);
+
+        res.send(html);
     } catch (err) {
         console.error('解密錯誤', err.message);
         res.send('<h3>交易資料解析失敗</h3>');

@@ -6,6 +6,8 @@ const qs = require("querystring");
  * @apiName upp
  * @apiParam {String}   ProdDesc    商品名稱
  * @apiParam {Number}   TradeAmt    商品金額
+ * @apiParam {Boolean}  isSandbox   是否使用測試區 (預設 false)
+ * @apiParam {String}   [MerTradeNo] 自訂訂單編號（選填，未填則自動產生 ORDER + 時間戳）
  *
  */
 module.exports = async (req, res) => {
@@ -16,9 +18,17 @@ module.exports = async (req, res) => {
     const merKey = process.env.MER_KEY;
     const merIv = process.env.MER_IV
 
-    const { ProdDesc, TradeAmt } = req.body;
+    // 從 req.body 取得參數，MerTradeNo 為選填的自訂訂單編號
+    const { ProdDesc, TradeAmt, isSandbox, MerTradeNo: customTradeNo } = req.body;
+    const useSandbox = isSandbox === true || isSandbox === 'true';
     const Timestamp = Math.floor(Date.now() / 1000);
-    const MerTradeNo = `ORDER${Date.now()}`;
+    // 若有傳入自訂訂單編號則使用，否則自動產生
+    const MerTradeNo = customTradeNo || `ORDER${Date.now()}`;
+
+    // 根據 useSandbox 決定 API URL
+    const apiUrl = useSandbox
+        ? 'https://sandbox-api.payuni.com.tw/api/upp'
+        : 'https://api.payuni.com.tw/api/upp';
 
     const payload = {
         MerID: merID,
@@ -27,7 +37,7 @@ module.exports = async (req, res) => {
         TradeAmt,
         ProdDesc,
         UsrMail: 'admin@yomeen.com',
-        ReturnURL: 'https://yomeen-payuni-api-357485790994.asia-east1.run.app/v1/upp/payment-return'
+        ReturnURL: 'https://yomeen-payuni-api-dot-i-food-project-v1.an.r.appspot.com/v1/upp/payment-return'
     };
 
     const plaintext = qs.stringify(payload);
@@ -38,7 +48,7 @@ module.exports = async (req, res) => {
     const formHtml = `
     <html lang="zh_tw">
       <body onload="document.forms[0].submit()">
-        <form method="POST" action="https://sandbox-api.payuni.com.tw/api/upp">
+        <form method="POST" action="${apiUrl}">
           <input type="hidden" name="MerID" value="${merID}" />
           <input type="hidden" name="Version" value="1.0" />
           <input type="hidden" name="EncryptInfo" value="${encryptInfo}" />

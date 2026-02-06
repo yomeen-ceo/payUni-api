@@ -1,0 +1,14 @@
+runtime: nodejs20
+service: yomeen-payuni-api
+handlers:
+  - url: /.*
+    script: auto
+    secure: always
+
+# 執行個體等級設定值
+instance_class: F4
+
+# VPC connector 設定 (讓對外連線使用固定 IP: 35.200.106.212)
+vpc_access_connector:
+  name: projects/i-food-project-v1/locations/asia-northeast1/connectors/payuni-connector-ne1
+  egress_setting: all-traffic

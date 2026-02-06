@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh_tw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>測試付款頁</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-weight: 500;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .env-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        .env-production {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .env-sandbox {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="card">
+            <h2>
+                測試付款頁
+                <span class="env-badge" :class="isSandbox ? 'env-sandbox' : 'env-production'">
+                    {{ isSandbox ? '測試區' : '正式區' }}
+                </span>
+            </h2>
+
+            <form method="POST" action="/v1/upp/create-order">
+                <!-- 自訂訂單編號，選填，留空則由後端自動產生 -->
+                <div class="form-group">
+                    <label>自訂訂單編號（選填）</label>
+                    <input type="text" name="MerTradeNo" v-model="merTradeNo" placeholder="留空則自動產生" />
+                </div>
+
+                <div class="form-group">
+                    <label>商品名稱</label>
+                    <input type="text" name="ProdDesc" v-model="prodDesc" />
+                </div>
+
+                <div class="form-group">
+                    <label>金額（元）</label>
+                    <input type="number" name="TradeAmt" v-model="tradeAmt" min="1" />
+                </div>
+
+                <div class="form-group">
+                    <label>環境</label>
+                    <select name="isSandbox" v-model="isSandbox">
+                        <option :value="false">正式區</option>
+                        <option :value="true">測試區 (Sandbox)</option>
+                    </select>
+                </div>
+
+                <button type="submit">送出付款</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue;
+
+        createApp({
+            setup() {
+                // 自訂訂單編號，預設空字串，留空則由後端自動產生
+                const merTradeNo = ref('');
+                const prodDesc = ref('測試商品');
+                const tradeAmt = ref(100);
+                const isSandbox = ref(false);
+
+                return {
+                    merTradeNo,
+                    prodDesc,
+                    tradeAmt,
+                    isSandbox
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
