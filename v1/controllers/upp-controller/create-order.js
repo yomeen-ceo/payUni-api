@@ -21,11 +21,19 @@ module.exports = async (req, res) => {
     const merIv = process.env.MER_IV
 
     // 從 req.body 取得參數，MerTradeNo 為選填的自訂訂單編號
-    const { ProdDesc, TradeAmt, isSandbox, MerTradeNo: customTradeNo, ReturnURL } = req.body;
+    const { ProdDesc, TradeAmt, isSandbox, MerTradeNo: customTradeNo, ReturnURL: customReturnURL, clientReturnURL, UsrMail: customUsrMail } = req.body;
+    const UsrMail = customUsrMail || 'admin@yomeen.com';
     const useSandbox = isSandbox === true || isSandbox === 'true';
     const Timestamp = Math.floor(Date.now() / 1000);
     // 若有傳入自訂訂單編號則使用，否則自動產生
     const MerTradeNo = customTradeNo || `ORDER${Date.now()}`;
+    // 預設的 payment-return 路徑
+    const defaultReturnURL = 'https://yomeen-payuni-api-dot-i-food-project-v1.an.r.appspot.com/v1/upp/payment-return';
+    let ReturnURL = customReturnURL || defaultReturnURL;
+    // 若有 clientReturnURL，附加到 ReturnURL query string，payment-return 解密後會 redirect 到該前端頁面
+    if (clientReturnURL) {
+        ReturnURL = `${ReturnURL}?clientReturnURL=${encodeURIComponent(clientReturnURL)}`;
+    }
 
     // 根據 useSandbox 決定 API URL
     const apiUrl = useSandbox

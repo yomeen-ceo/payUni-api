@@ -33,12 +33,19 @@ module.exports = async (req, res) => {
         const result = qs.parse(decrypted);
         console.log(result)
 
-        // ✅ MVC 分離：讀取 View 模板
+        const resultJson = JSON.stringify(result);
+
+        // 若 ReturnURL 帶有 clientReturnURL query param，解密後 redirect 到該前端頁面（如 echoseed）
+        const clientReturnURL = req.query.clientReturnURL;
+        if (clientReturnURL) {
+            const redirectURL = `${clientReturnURL}?result=${encodeURIComponent(resultJson)}`;
+            console.log('redirect to clientReturnURL:', redirectURL);
+            return res.redirect(redirectURL);
+        }
+
+        // 無 clientReturnURL 時，使用本地 View 模板顯示結果
         const viewPath = path.join(__dirname, '../../views/payment-result.html');
         let template = fs.readFileSync(viewPath, 'utf-8');
-
-        // 注入資料到模板 (將 %%RESULT_DATA%% 替換為實際 JSON)
-        const resultJson = JSON.stringify(result);
         const html = template.replace('%%RESULT_DATA%%', resultJson);
 
         res.send(html);

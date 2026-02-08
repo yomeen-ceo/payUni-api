@@ -56,6 +56,15 @@ app.get('/order', (req, res) => {
 });
 
 /**
+ * @api {get} /echoseed-order 模擬 EchoSeed 下單頁，交易完成後 redirect 到 echoseed 的 payResult 頁面
+ */
+app.get('/echoseed-order', (req, res) => {
+    const viewPath = path.join(__dirname, 'v1/views/echoseed-order.html');
+    const html = fs.readFileSync(viewPath, 'utf-8');
+    res.send(html);
+});
+
+/**
  * @api {get} /cancel-credit 測試取消信用卡授權
  */
 app.get('/cancel-credit', (req, res) => {

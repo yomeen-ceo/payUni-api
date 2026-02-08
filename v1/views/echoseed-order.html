@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh_tw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模擬 EchoSeed 下單頁</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        .subtitle {
+            color: #888;
+            font-size: 13px;
+            margin-top: -8px;
+            margin-bottom: 16px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-weight: 500;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #1565c0;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #1565c0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        button:hover {
+            background: #0d47a1;
+        }
+        .flow-info {
+            background: #e3f2fd;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #1565c0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="card">
+            <h2>模擬 EchoSeed 下單</h2>
+            <p class="subtitle">模擬從 echoseed 前端發起付款，交易完成後 redirect 回 echoseed 的 payResult 頁面</p>
+
+            <!-- 流程說明 -->
+            <div class="flow-info">
+                流程：此頁面 → payuni-api 建單 → PAYUNi 付款 → payuni-api 解密 → redirect 到 echoseed /payuniOrder/payResult
+            </div>
+
+            <form method="POST" action="/v1/upp/create-order">
+                <div class="form-group">
+                    <label>訂單編號（選填）</label>
+                    <input type="text" name="MerTradeNo" v-model="merTradeNo" placeholder="留空則自動產生" />
+                </div>
+
+                <div class="form-group">
+                    <label>商品名稱</label>
+                    <input type="text" name="ProdDesc" v-model="prodDesc" />
+                </div>
+
+                <div class="form-group">
+                    <label>金額（元）</label>
+                    <input type="number" name="TradeAmt" v-model="tradeAmt" min="1" />
+                </div>
+
+                <div class="form-group">
+                    <label>環境</label>
+                    <select name="isSandbox" v-model="isSandbox">
+                        <option :value="false">正式區</option>
+                        <option :value="true">測試區 (Sandbox)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>UsrMail</label>
+                    <input type="email" name="UsrMail" v-model="usrMail" />
+                </div>
+
+                <!-- clientReturnURL: 交易完成後，payment-return 解密後會 redirect 到這個 URL -->
+                <div class="form-group">
+                    <label>交易結果頁 (clientReturnURL)</label>
+                    <select v-model="clientReturnURL">
+                        <option value="">不 redirect（使用本專案 payment-result 頁面）</option>
+                        <option value="https://echoseed-dot-i-food-project-v1.an.r.appspot.com/payuniOrder/payResult">EchoSeed payResult</option>
+                    </select>
+                    <input type="text" name="clientReturnURL" v-model="clientReturnURL" placeholder="或自行輸入 URL" style="margin-top: 6px;" />
+                </div>
+
+                <button type="submit">送出付款</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue;
+
+        createApp({
+            setup() {
+                const merTradeNo = ref('');
+                const prodDesc = ref('EchoSeed 測試商品');
+                const tradeAmt = ref(100);
+                const isSandbox = ref(false);
+                const usrMail = ref('admin@yomeen.com');
+                // 預設 redirect 到 echoseed 的 payResult 頁面
+                const clientReturnURL = ref('https://echoseed-dot-i-food-project-v1.an.r.appspot.com/payuniOrder/payResult');
+
+                return {
+                    merTradeNo,
+                    prodDesc,
+                    tradeAmt,
+                    isSandbox,
+                    usrMail,
+                    clientReturnURL
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
