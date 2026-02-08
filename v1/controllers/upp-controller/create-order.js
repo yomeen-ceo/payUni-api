@@ -6,6 +6,8 @@ const qs = require("querystring");
  * @apiName upp
  * @apiParam {String}   ProdDesc    商品名稱
  * @apiParam {Number}   TradeAmt    商品金額
+ * @apiParam {String}   MerTradeNo  客戶訂單編號
+ * @apiParam {String}   ReturnURL   交易完成回傳網址
  * @apiParam {Boolean}  isSandbox   是否使用測試區 (預設 false)
  * @apiParam {String}   [MerTradeNo] 自訂訂單編號（選填，未填則自動產生 ORDER + 時間戳）
  *
@@ -19,7 +21,7 @@ module.exports = async (req, res) => {
     const merIv = process.env.MER_IV
 
     // 從 req.body 取得參數，MerTradeNo 為選填的自訂訂單編號
-    const { ProdDesc, TradeAmt, isSandbox, MerTradeNo: customTradeNo } = req.body;
+    const { ProdDesc, TradeAmt, isSandbox, MerTradeNo: customTradeNo, ReturnURL } = req.body;
     const useSandbox = isSandbox === true || isSandbox === 'true';
     const Timestamp = Math.floor(Date.now() / 1000);
     // 若有傳入自訂訂單編號則使用，否則自動產生
@@ -36,8 +38,8 @@ module.exports = async (req, res) => {
         MerTradeNo,
         TradeAmt,
         ProdDesc,
-        UsrMail: 'admin@yomeen.com',
-        ReturnURL: 'https://yomeen-payuni-api-dot-i-food-project-v1.an.r.appspot.com/v1/upp/payment-return'
+        UsrMail,
+        ReturnURL
     };
 
     const plaintext = qs.stringify(payload);

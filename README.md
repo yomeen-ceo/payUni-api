@@ -4,6 +4,18 @@ payUni API
 ## 佈署平台
 Google Cloud Run 
 
+### 查詢gcp專案資訊
+```bash
+gcloud config list
+```
+
+### 佈署
+```bash
+windows + R 開啟 DOS 視窗
+cd \payUni-api  進入payUni-api路徑
+gcloud app deploy --version=v1 --quiet
+```
+
 ## 說明
 1、目前版本單檔測試用，暫時用expressjs5.1
 2、改用Google Cloud Secret Manager儲存
